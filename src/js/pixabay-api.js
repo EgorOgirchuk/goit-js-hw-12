@@ -1,6 +1,7 @@
 export function getImagesFromPixabay(query) {
   const pixabayUrl = 'https://pixabay.com/api/';
   const pixabayKey = '45258111-19b0afcb9384c7a2acd16a24f';
+  const axios = axios();
   let params = new URLSearchParams({
     key: pixabayKey,
     q: query,
