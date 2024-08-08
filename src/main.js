@@ -12,7 +12,7 @@ const loader = document.querySelector('.loader');
 let gallery = document.querySelector('.gallery');
 
 let searchInput = document.querySelector('.search');
-let loadMoreButton = document.querySelector('.load-more-button');
+let loadMoreButton = document.querySelector('#load-more-button');
 
 const lightbox = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
@@ -24,10 +24,11 @@ let images = [];
 
 const renderImages = async (query, page) => {
   try {
+    loader.style.display = 'block';
     const response = await getImagesFromPixabay(query, page);
     const { data } = response;
-    images = [...images, ...data.hits];
-    console.log(images);
+    const { totalHits, hits } = data;
+    images = [...images, ...hits];
 
     if (images.length === 0) {
       notifyError();
@@ -37,6 +38,18 @@ const renderImages = async (query, page) => {
     searchInput.value = '';
 
     gallery.innerHTML = render(images);
+
+    if (images.length >= totalHits) {
+      loadMoreButton.classList.add('load-more-button');
+      loadMoreButton.classList.remove('button-center');
+
+      notifyInfo("We're sorry, but you've reached the end of search results.");
+    } else {
+      if (loadMoreButton.classList.contains('load-more-button')) {
+        loadMoreButton.classList.remove('load-more-button');
+        loadMoreButton.classList.add('button-center');
+      }
+    }
 
     lightbox.refresh();
   } catch (e) {
@@ -49,14 +62,12 @@ const renderImages = async (query, page) => {
 
 document.querySelector('#search-form').addEventListener('submit', async e => {
   e.preventDefault();
-  loader.style.display = 'block';
+
   query = searchInput.value;
   images = [];
 
   try {
     await renderImages(query, page);
-    loadMoreButton.classList.remove('default-load-more');
-    loadMoreButton.classList.add('button-center');
   } catch (e) {
     console.error(e);
   }
@@ -65,12 +76,30 @@ document.querySelector('#search-form').addEventListener('submit', async e => {
 loadMoreButton.addEventListener('click', async e => {
   page++;
   await renderImages(query, page);
+  const boundingClientRect = document
+    .querySelector('.gallery-item-wrap')
+    .getBoundingClientRect();
+
+  console.log(boundingClientRect);
+  const imgBlockWidth = boundingClientRect.width;
+
+  window.scrollBy({
+    top: imgBlockWidth * 2,
+    behavior: 'smooth',
+  });
 });
 
 const notifyError = (
   m = 'Sorry, there are no images matching your search query. Please try again!'
 ) => {
   iziToast.error({
+    message: m,
+    position: 'topRight',
+  });
+};
+
+const notifyInfo = m => {
+  iziToast.info({
     message: m,
     position: 'topRight',
   });
