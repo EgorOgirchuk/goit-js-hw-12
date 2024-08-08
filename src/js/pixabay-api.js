@@ -13,10 +13,9 @@ export async function getImagesFromPixabay(query, page) {
     q: query,
     image_type: 'photo',
     orientation: 'horizontal',
-    // safesearch: true,
+    safesearch: true,
     per_page: DEFAULR_PER_PAGE,
     page: page,
-    // key: pixabayKey,
   };
 
   return axios.get('/', {
