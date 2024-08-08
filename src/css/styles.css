@@ -59,3 +59,13 @@ img {
   text-align: center;
   gap: 10px;
 }
+
+.default-load-more,
+.load-more-button {
+  display: none;
+}
+
+.button-center {
+  display: flex;
+  margin: 0 auto;
+}
